@@ -1,5 +1,5 @@
 """
-here is the mian backbone for TGCMF
+here is the mian backbone for TGCMSF
 """
 import torch
 import torch.nn as nn
@@ -56,9 +56,9 @@ class AttentionGate(nn.Module):
         return gate_seq
 
 
-class TGCMF(nn.Module):
+class TGCMSF(nn.Module):
     def __init__(self, args):
-        super(TGCMF, self).__init__()
+        super(TGCMSF, self).__init__()
         if args.use_bert:
             self.text_model = BertTextEncoder(use_finetune=args.use_finetune, transformers=args.transformers,
                                               pretrained=args.pretrained)

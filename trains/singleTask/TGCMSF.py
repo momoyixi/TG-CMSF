@@ -22,7 +22,7 @@ class MSE(nn.Module):
         mse = torch.sum(diffs.pow(2)) / n
         return mse
 
-class TGCMF():
+class TGCMSF():
     def __init__(self, args):
         self.args = args
         self.criterion = nn.L1Loss()           
@@ -50,7 +50,7 @@ class TGCMF():
             return 0.5*(F.cross_entropy(logits, labels) + F.cross_entropy(logits.t(), labels))
 
 
-        # 0: TGCMF model
+        # 0: TGCMSF model
         params = model[0].parameters() 
 
         optimizer = optim.Adam(params, lr=self.args.learning_rate)
@@ -67,8 +67,8 @@ class TGCMF():
         best_valid = 1e8 if min_or_max == 'min' else 0
 
         net = []
-        net_TGCMF = model[0]
-        net.append(net_TGCMF)    
+        net_TGCMSF = model[0]
+        net.append(net_TGCMSF)    
         model = net
         
         while True:
@@ -163,7 +163,7 @@ class TGCMF():
                         _masked_mse(output['c_v_pred'], output['c_v'].detach(), output['v_mask_pos'])
                     )
 
-                    #overall loss L_TGCMF
+                    #overall loss L_TGCMSF
                     combined_loss = loss_task + (loss_s_sr + loss_recon + (loss_sim+loss_ort) * 0.1) * 0.1+ self.lambda_rec_mask* loss_rec_mask+ self.lambda_cl* loss_cl+domain_loss*self.lambda_domain
                 
                     combined_loss.backward()
@@ -208,12 +208,12 @@ class TGCMF():
             if isBetter:
                 best_valid, best_epoch = cur_valid, epochs
                 # save model
-                model_save_path = './pt/TGCMF' + str(self.args.dataset_name)+'.pth'
+                model_save_path = './pt/TGCMSF' + str(self.args.dataset_name)+'.pth'
                 # torch.save(model[0].state_dict(), model_save_path) # 原来被你注释掉了
 
             # ================= 新增：专门保存第 30 轮模型用于 t-SNE =================
             if epochs == 31:
-                tsne_save_path = f'./pt/TGCMF_{self.args.dataset_name}_epoch31.pth'
+                tsne_save_path = f'./pt/TGCMSF_{self.args.dataset_name}_epoch31.pth'
                 torch.save(model[0].state_dict(), tsne_save_path)
                 logger.info(f"🌟 Successfully saved Epoch 31 model for t-SNE: {tsne_save_path}")
             # =====================================================================

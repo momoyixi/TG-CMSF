@@ -10,7 +10,7 @@ from config import get_config_regression
 from data_loader import MMDataLoader
 from trains import ATIO
 from utils import assign_gpu, setup_seed
-from trains.singleTask.model import TGCMF
+from trains.singleTask.model import TGCMSF
 from trains.singleTask.distillnets import get_distillation_kernel, get_distillation_kernel_homo
 from trains.singleTask.misc import softmax
 import sys
@@ -50,7 +50,7 @@ def _set_logger(log_dir, model_name, dataset_name, verbose_level):
     return logger
 
 
-def TGCMF_run(
+def TGCMSF_run(
     model_name, dataset_name, config=None, config_file="", seeds=[], is_tune=False,
     tune_times=500, feature_T="", feature_A="", feature_V="",
     model_save_dir="", res_save_dir="", log_dir="",
@@ -127,7 +127,7 @@ def _run(args, num_workers=4, is_tune=False, from_sena=False):
     dataloader = MMDataLoader(args, num_workers)
 
     if args.is_training:
-        print("training for TGCMF")
+        print("training for TGCMSF")
 
         
         args.gd_size_low = 64  
@@ -144,7 +144,7 @@ def _run(args, num_workers=4, is_tune=False, from_sena=False):
         assert len(from_idx) >= 1
 
         model = []
-        model_TGCMF = getattr(TGCMF, 'TGCMF')(args)
+        model_TGCMSF = getattr(TGCMSF, 'TGCMSF')(args)
 
         model_distill_homo = getattr(get_distillation_kernel_homo, 'DistillationKernel')(n_classes=1,
                                                                                hidden_size=
@@ -170,12 +170,12 @@ def _run(args, num_workers=4, is_tune=False, from_sena=False):
                                                                                    alpha=1 / 8,
                                                                                    hyp_params=args)
 
-        model_TGCMF = model_TGCMF.cuda()
+        model_TGCMSF = model_TGCMSF.cuda()
 
-        model = [model_TGCMF]         
+        model = [model_TGCMSF]         
     else:
-        print("testing phase for TGCMF")
-        model = getattr(TGCMF, 'TGCMF')(args)
+        print("testing phase for TGCMSF")
+        model = getattr(TGCMSF, 'TGCMSF')(args)
         model = model.cuda()
 
     trainer = ATIO().getTrain(args)
@@ -183,7 +183,7 @@ def _run(args, num_workers=4, is_tune=False, from_sena=False):
 
     #test
     if args.mode == 'test':
-        model.load_state_dict(torch.load('./pt/TGCMF'+str(args.dataset_name)+'.pth'),strict=False) 
+        model.load_state_dict(torch.load('./pt/TGCMSF'+str(args.dataset_name)+'.pth'),strict=False) 
         results = trainer.do_test(model, dataloader['test'], mode="TEST")
 
         sys.stdout.flush()
@@ -191,7 +191,7 @@ def _run(args, num_workers=4, is_tune=False, from_sena=False):
     #train
     else:
         epoch_results = trainer.do_train(model, dataloader, return_epoch_results=from_sena)
-        # model[0].load_state_dict(torch.load('./pt/TGCMF'+str(args.dataset_name)+'.pth'))
+        # model[0].load_state_dict(torch.load('./pt/TGCMSF'+str(args.dataset_name)+'.pth'))
 
         results = trainer.do_test(model[0], dataloader['test'], mode="TEST")
         

@@ -8,7 +8,7 @@ __all__ = ['ATIO']
 class ATIO():
     def __init__(self):
         self.TRAIN_MAP = {
-            'TGCMF': TGCMF,
+            'TGCMSF': TGCMSF,
         }
     
     def getTrain(self, args):
